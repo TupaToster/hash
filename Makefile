@@ -1,6 +1,6 @@
 CC=g++
-OBJ_ARGS=-lsfml-graphics -lsfml-window -lsfml-system
-CC_SRCS=hashTab.cpp
+OBJ_ARGS=
+CC_SRCS=main.cpp flog.cpp
 OBJDIR=obj/
 DEPDIR=dep/
 CC_ARGS=
@@ -27,7 +27,7 @@ $(DEPDIR):
 	mkdir $@
 
 clean:
-	rm -rf *.o *.d hash
+	rm -rf *.o *.d hash *.dot *.png
 	rm -rf $(DEPDIR) $(OBJDIR)
 	clear
 
