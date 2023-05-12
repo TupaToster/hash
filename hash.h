@@ -182,7 +182,7 @@ public:
 
         fclose (picSource);
 
-        char command[40] = "";
+        char command[100] = "";
         sprintf (command, "dot -Tpng %s -o %s", srcName, picName);
 
         system (command);
