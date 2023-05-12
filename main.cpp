@@ -9,5 +9,5 @@ int main () {
 
     HashTable lol (countHashStr);
     lol.insert ("aye", 11);
-    // dump (lol);
+    dump (lol);
 }

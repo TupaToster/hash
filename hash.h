@@ -35,7 +35,7 @@ public:
     };
 
 private:
-    const size_t cap = 67;
+    const size_t cap = 7;
     hash_t (*strHash) (char* str) = NULL;
     Nod* data = NULL;
 
@@ -47,14 +47,25 @@ public:
         data = (Nod*) calloc (cap, sizeof (Nod));
         assert (data != NULL);
 
-        for (int i = 0; i < cap; i++) data[i] = Nod ();
+        for (int i = 0; i < cap; i++) {
+
+            data[i] = Nod ();
+            data[i].next = data + i;
+        }
     }
 
     void DTOR () {
 
         assert (data != NULL);
 
-        for (int i = 0; i < cap; i++) data[i].DTOR ();
+        for (int i = 0; i < cap; i++)
+            for (Nod* iter = data + i; iter != data + i;) {
+
+                Nod* nxt = iter->next;
+                iter->DTOR ();
+                iter = nxt;
+            }
+
 
         free (data);
         setPoison (data);
@@ -72,13 +83,9 @@ public:
 
         hash_t hash = strHash (key);
 
-        for (Nod* iter = data[hash % cap].next; iter != data + hash % cap; iter=iter->next) {
-
-            if (iter->hash == hash and strcmp (key, iter->key) == 0) {
-
+        for (Nod* iter = data[hash % cap].next; iter != data + hash % cap; iter=iter->next)
+            if (iter->hash == hash and strcmp (key, iter->key) == 0)
                 return iter;
-            }
-        }
 
         return data + hash % cap;
     }
@@ -96,6 +103,7 @@ public:
             *newNod = Nod (strHash, key, val, iter->next);
 
             iter->next = newNod;
+            iter->val++;
         }
         else {
 
@@ -124,30 +132,38 @@ public:
         picprintf ("digraph HashTab_%d {" "\n", GraphDumpCounter);
         picprintf ("\t" "graph [dpi = 200];" "\n");
         picprintf ("\t" "bgcolor = \"#252525\"" "\n");
-        picprintf ("\t" "rankdir = TB" "\n");
+        picprintf ("\t" "rankdir = LR" "\n");
 
-        for (int i = 0; i < cap; i++) {
+        for (int i = cap - 1; i >= 0; i--) {
 
-            picprintf ("\t" "\"Nod_%d_0\" [shape = \"Mrecord\", style = \"filled\", fillcolor = \"#1ed5f2\", label = \"<line> Key = &lt;%d&gt;\"]\n", i, i);
+            picprintf ("\t" "\"Nod_%d_0\" [shape = \"Mrecord\", style = \"filled\", fillcolor = \"#1ed5f2\", label = \" Type = &lt;ODD&gt; | <line> Bucket = &lt;%u&gt; | List Size = &lt;%d&gt;\"]\n", i, i, data[i].val);
 
             int cnt = 1;
             for (Nod* iter = data[i].next; iter != data + i; iter = iter->next) {
 
-                picprintf ("\t" "\"Nod_%d_%d\" [shape = \"Mrecord\", style = \"filled\", fillcolor = \"#1ed5f2\", label = \"<line> Key = &lt;%d&gt;\" | Val = &lt;%s&gt;\"]\n", i, cnt, i, iter->val);
+                picprintf ("\t" "\"Nod_%d_%d\" [shape = \"Mrecord\", style = \"filled\", fillcolor = \"#1ed5f2\", label = \" Type = &lt;DATA&gt; | <line> Key = &lt;%s&gt; | Val = &lt;%d&gt;\"]\n", i, cnt, iter->key, iter->val);
                 cnt++;
             }
         }
 
-        for (int i = 0; i < cap; i++) {
+        for (int iter = 0;;iter++) {
 
-            picprintf ("\t" "{rank = same; Nod_%d_0; ");
+            bool flag = true;
 
-            int cnt = 1;
-            for (Nod* iter = data[i].next; iter != data + i; iter = iter->next) {
+            for (int i = 0; i < cap; i++) {
 
-                picprintf ("Nod_%d_%d; ", i, cnt);
-                cnt++;
+                if (data[i].val >= iter) {
+                    if (flag) {
+
+                        picprintf ("\t" "{rank = same; ");
+                        flag = false;
+                    }
+                    picprintf ("Nod_%d_%d; ", i, iter);
+                }
             }
+
+            if (flag) break;
+
             picprintf ("}\n");
         }
 
