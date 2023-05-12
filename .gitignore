@@ -2,3 +2,4 @@ dep
 obj
 *.dot
 hash
+*.html

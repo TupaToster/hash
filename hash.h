@@ -35,6 +35,7 @@ public:
     };
 
 private:
+    const int NOT_FOUND = 0xBADC0FEE;
     const size_t cap = 7;
     hash_t (*strHash) (char* str) = NULL;
     Nod* data = NULL;
@@ -74,7 +75,9 @@ public:
 
     inline int find (char* key) {
 
-        return _find (key)->val;
+        Nod* retVal = _find (key);
+        if (retVal->key == NULL) return NOT_FOUND;
+        return retVal->val;
     }
 
     Nod* _find (char* key) {
@@ -88,6 +91,30 @@ public:
                 return iter;
 
         return data + hash % cap;
+    }
+
+    void del (char* key) {
+
+        assert (key != NULL);
+
+        Nod* iter = _find (key);
+        if (iter->key == NULL) return;
+
+        Nod* prev = iter->next;
+        Nod* base = NULL;
+
+        for (;prev->next != iter; prev = prev->next) {
+
+            if (prev->key == NULL) base = prev;
+        }
+        if (prev->key == NULL) base = prev;
+
+        assert (base != NULL);
+
+        prev->next = iter->next;
+        base->val--;
+
+        iter->DTOR ();
     }
 
     Nod* insert (char* key, int val = 0) {
