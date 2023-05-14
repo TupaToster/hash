@@ -2,7 +2,18 @@
 
 typedef unsigned int hash_t;
 
+inline hash_t defaultHash (char* str) {
+
+    assert (str != NULL);
+
+    return (hash_t) countHash (str, str + strlen (str));
+}
+
+#ifndef NDEBUG
 #define dump(clas) (clas).dumpInside (#clas, __FILE__, __FUNCTION__, __LINE__)
+#else
+#define dump(clas) ;
+#endif
 
 class HashTable {
 
@@ -35,15 +46,16 @@ public:
     };
 
 private:
-    const int NOT_FOUND = 0xBADC0FEE;
-    const size_t cap = 7;
+    static const int NOT_FOUND = 0xBADC0FEE;
+    static const size_t defaultCap = 71089;
+    size_t cap = 0;
     hash_t (*strHash) (char* str) = NULL;
     Nod* data = NULL;
 
 public:
-    HashTable (hash_t (*_strHash) (char* str), Nod* _data = NULL) : strHash (_strHash), data (_data) {
+    HashTable (hash_t (*_strHash) (char* str) = defaultHash, size_t _cap = defaultCap) : strHash (_strHash), cap (_cap) {
 
-        if (_data != NULL) return;
+        assert (strHash != NULL);
 
         data = (Nod*) calloc (cap, sizeof (Nod));
         assert (data != NULL);
@@ -52,6 +64,37 @@ public:
 
             data[i] = Nod ();
             data[i].next = data + i;
+        }
+    }
+
+
+    // Please don't change hash func between saving and loading back up
+    HashTable (const char* fileName, hash_t (*_strHash) (char* str) = defaultHash) {
+
+        assert (fileName != NULL);
+
+        FILE* inFile = fopen (fileName, "rb");
+        assert (inFile != NULL);
+
+        int readFlag = 0;
+
+        #define scn(...) {readFlag = fscanf (inFile, __VA_ARGS__); assert (readFlag != 0); }
+
+        scn ("%llu ", &cap);
+
+        HashTable (_strHash, cap);
+
+        for (int i = 0; i < cap; i++) {
+
+            scn ("[%d]", &data[i].val);
+
+            for (int j = 0; j < data[i].val; j++) {
+
+                Nod* newNod = (Nod*) calloc (1, sizeof (Nod));
+                assert (newNod != NULL);
+
+                scn ("->[%[^$]:%d]", newNod->key, &newNod->val);
+            }
         }
     }
 
@@ -233,5 +276,33 @@ public:
         graphDump ();
 
         flogprintf ("</pre><hr>\n");
+    }
+
+    void save2file (const char* fileName) {
+
+        assert (fileName != NULL);
+
+        FILE* outFile = fopen (fileName, "wb");
+        assert (outFile != NULL);
+
+        #define oprintf(...) fprintf (outFile, __VA_ARGS__);
+
+        oprintf ("%u\n", cap);
+
+        for (int i = 0; i < cap; i++) {
+
+            oprintf ("[%d]", data[i].val);
+
+            for (Nod* iter = data[i].next; iter != data + i; iter = iter->next){
+
+                oprintf ("->[%s$:%d]", iter->key, iter->val);
+            }
+
+            oprintf ("\n");
+        }
+
+        fclose (outFile);
+
+        #undef oprintf
     }
 };

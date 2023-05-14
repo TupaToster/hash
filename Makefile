@@ -1,9 +1,9 @@
 CC=g++
-OBJ_ARGS=
+OBJ_ARGS=-g
 CC_SRCS=main.cpp flog.cpp
 OBJDIR=obj/
 DEPDIR=dep/
-CC_ARGS=
+CC_ARGS=-g
 
 all: $(OBJDIR) $(DEPDIR) hash
 
@@ -18,7 +18,7 @@ $(OBJDIR)%.o: %.cpp
 include $(wildcard $(DEPDIR)/*.d)
 
 hash: $(addprefix $(OBJDIR), $(CC_SRCS:.cpp=.o))
-	$(CC) $^ -o $@ $(OBJ_ARGS)
+	$(CC) $(OBJ_ARGS) $^ -o $@
 
 $(OBJDIR):
 	mkdir $@
@@ -26,9 +26,14 @@ $(OBJDIR):
 $(DEPDIR):
 	mkdir $@
 
+grind:
+	rm -rf callgrind.out*
+	sudo valgrind --tool=callgrind ./hash
+	sudo kcachegrind callgrind.out*
+
 clean:
-	rm -rf *.o *.d hash *.dot *.png
+	rm -rf *.o *.d hash *.dot *.png *.data* callgrind.out*
 	rm -rf $(DEPDIR) $(OBJDIR)
 	clear
 
-.PHONY: clean all
+.PHONY: clean all grind
