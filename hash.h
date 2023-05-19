@@ -1,3 +1,4 @@
+#pragma once
 #include "flog.h"
 
 typedef unsigned int hash_t;
@@ -52,6 +53,9 @@ private:
     hash_t (*strHash) (char* str) = NULL;
     Nod* data = NULL;
 
+    // all inline functions here
+
+
 public:
     HashTable (hash_t (*_strHash) (char* str) = defaultHash, size_t _cap = defaultCap) : strHash (_strHash), cap (_cap) {
 
@@ -67,34 +71,39 @@ public:
         }
     }
 
-
-    // Please don't change hash func between saving and loading back up
-    HashTable (const char* fileName, hash_t (*_strHash) (char* str) = defaultHash) {
+    HashTable (const char* fileName, hash_t (*_strHash) (char* str) = defaultHash, size_t _cap = defaultCap) : strHash (_strHash), cap (_cap) {
 
         assert (fileName != NULL);
+        assert (_strHash != NULL);
+        assert (_cap > 0);
 
         FILE* inFile = fopen (fileName, "rb");
         assert (inFile != NULL);
 
         int readFlag = 0;
 
-        #define scn(...) {readFlag = fscanf (inFile, __VA_ARGS__); assert (readFlag != 0); }
+        #define scn(...) {readFlag = fscanf (inFile, __VA_ARGS__);}
 
-        scn ("%llu ", &cap);
-
-        HashTable (_strHash, cap);
+        data = (Nod*) calloc (cap, sizeof (Nod));
+        assert (data != NULL);
 
         for (int i = 0; i < cap; i++) {
 
-            scn ("[%d]", &data[i].val);
+            data[i] = Nod ();
+            data[i].next = data + i;
+        }
 
-            for (int j = 0; j < data[i].val; j++) {
+        char key[1000] = {};
+        int val = 0;
 
-                Nod* newNod = (Nod*) calloc (1, sizeof (Nod));
-                assert (newNod != NULL);
+        for (int i = 0; i < cap; i++) {
 
-                scn ("->[%[^$]:%d]", newNod->key, &newNod->val);
-            }
+            scn ("%[^$]$%d\n ", key, &val);
+            if (readFlag == EOF) break;
+            flog (key);
+            flog (val);
+
+            insert (key, val);
         }
     }
 
@@ -287,22 +296,27 @@ public:
 
         #define oprintf(...) fprintf (outFile, __VA_ARGS__);
 
-        oprintf ("%u\n", cap);
-
         for (int i = 0; i < cap; i++) {
-
-            oprintf ("[%d]", data[i].val);
 
             for (Nod* iter = data[i].next; iter != data + i; iter = iter->next){
 
-                oprintf ("->[%s$:%d]", iter->key, iter->val);
+                oprintf ("%s$%d\n", iter->key, iter->val);
             }
-
-            oprintf ("\n");
         }
 
         fclose (outFile);
 
         #undef oprintf
+    }
+
+    // note that array should be allocated in advance and should have right size (the one u set when creating table)
+    void saveListLens (int* array) {
+
+        assert (array != NULL);
+
+        for (int i = 0; i < cap; i++) {
+
+            array[i] = data[i].val;
+        }
     }
 };

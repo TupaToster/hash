@@ -1,6 +1,6 @@
 CC=g++
 OBJ_ARGS=-g
-CC_SRCS=main.cpp flog.cpp
+CC_SRCS=main.cpp flog.cpp hashFuncs.cpp
 OBJDIR=obj/
 DEPDIR=dep/
 CC_ARGS=-g
@@ -18,7 +18,7 @@ $(OBJDIR)%.o: %.cpp
 include $(wildcard $(DEPDIR)/*.d)
 
 hash: $(addprefix $(OBJDIR), $(CC_SRCS:.cpp=.o))
-	$(CC) $(OBJ_ARGS) $^ -o $@
+	$(CC) $^ -o $@ $(OBJ_ARGS)
 
 $(OBJDIR):
 	mkdir $@
