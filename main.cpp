@@ -1,4 +1,9 @@
-#include "protos.h"
+#include <immintrin.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include "hashFuncs.h"
 
 hash_t countHashStr (char* val) {
 
@@ -7,15 +12,5 @@ hash_t countHashStr (char* val) {
 
 int main () {
 
-    HashTable lol (countHashStr);
-    for (int i = 0; i < 10000; i++) {
-        for (int j = 0; j < 100; j++) countHashStr ("lol");
-        lol.insert ("aye", 11);
-        lol.insert ("suka", -1);
-        lol.insert ("pizdec", 228);
-        lol.insert ("420", 240);
-        lol.del ("suka");
-    }
-    dump (lol);
-    lol.save2file ("out.lol");
+    
 }
