@@ -74,3 +74,29 @@ hash_t rorHash (char* str) {
 
     return retVal;
 }
+
+hash_t crc32Tab[256] = {0};
+bool filled = false;
+const hash_t crc32Poly = 0xEDB88320;
+
+void fillCrc32 () {
+
+    for (unsigned char i = 0; i < 256; i++) {
+
+        crc32Tab[i] = i;
+        for (int j = 0; j < 8; j++)
+            crc32Tab[i] = (crc32Tab[i] & 1) ? (crc32Tab[i] >> 1) ^ crc32Poly : (crc32Tab[i] >> 1);
+    }
+}
+
+hash_t crc32Hash (char* str) {
+
+    assert (str != NULL);
+
+    hash_t retVal = -1;
+
+    while (*str != '\0')
+        retVal = crc32Tab[retVal ^ *(str++)] ^ (retVal >> 8);
+
+    return ~retVal;
+}

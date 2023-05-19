@@ -16,3 +16,5 @@ hash_t ror (hash_t val);
 hash_t rolHash (char* str);
 
 hash_t rorHash (char* str);
+
+extern hash_t crc32Tab[256];
