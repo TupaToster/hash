@@ -13,3 +13,6 @@ hash_t rol (hash_t val);
 
 hash_t ror (hash_t val);
 
+hash_t rolHash (char* str);
+
+hash_t rorHash (char* str);
