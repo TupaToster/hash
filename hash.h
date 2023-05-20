@@ -93,18 +93,44 @@ public:
             data[i].next = data + i;
         }
 
-        char key[1000] = {};
+        char key[1000] = "";
         int val = 0;
 
-        for (int i = 0; i < cap; i++) {
+        for (;;) {
 
             scn ("%[^$]$%d\n ", key, &val);
             if (readFlag == EOF) break;
-            flog (key);
-            flog (val);
 
             insert (key, val);
         }
+
+        #undef scn(...)
+    }
+
+    // if used on an unempty table will justi insert everything from file
+    void loadFromFile (char* fileName) {
+
+        assert (fileName != NULL);
+
+        FILE* inFile = fopen (fileName, "rb");
+        assert (inFile != NULL);
+
+        int readFlag = 0;
+
+        #define scn(...) {readFlag = fscanf (inFile, __VA_ARGS__);}
+
+        char key[1000] = "";
+        int val = 0;
+
+        for (;;) {
+
+            scn ("%[^$]$%d\n ", key, &val);
+            if (readFlag == EOF) break;
+
+            insert (key, val);
+        }
+
+        #undef scn(...)
     }
 
     void DTOR () {

@@ -32,7 +32,7 @@ grind:
 	sudo kcachegrind callgrind.out*
 
 clean:
-	rm -rf *.o *.d hash *.dot *.png *.data* callgrind.out*
+	rm -rf *.o *.d hash *.dot *.png *.data* *.out.callgrind *.hist
 	rm -rf $(DEPDIR) $(OBJDIR)
 	clear
 

@@ -81,6 +81,8 @@ const hash_t crc32Poly = 0xEDB88320;
 
 void fillCrc32 () {
 
+    filled = true;
+
     for (unsigned char i = 0; i < 256; i++) {
 
         crc32Tab[i] = i;
@@ -92,6 +94,8 @@ void fillCrc32 () {
 hash_t crc32Hash (char* str) {
 
     assert (str != NULL);
+
+    if (!filled) fillCrc32 ();
 
     hash_t retVal = -1;
 

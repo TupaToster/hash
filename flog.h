@@ -31,7 +31,7 @@ const char *getFormatIntern(const char *varType);
 
 #define getFormat(var) getFormatIntern(typeid(var).name())
 
-#define autoRefresh
+#define autoRefresh 
 
 #ifdef autoRefresh
 #define refresher fprintf(logOutf, "<meta http-equiv=\"refresh\" content=\"5\">\n")
