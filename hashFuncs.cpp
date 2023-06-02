@@ -27,7 +27,7 @@ hash_t asciiSum (char* str) {
 
     while (*str != '\0') {
 
-        retVal += *str;
+        retVal += (unsigned char) *str;
         str++;
     }
 
@@ -58,7 +58,7 @@ hash_t rolHash (char* str) {
     hash_t retVal = 0;
 
     for (;*str != '\0'; str++)
-        retVal = rol (retVal) + *str;
+        retVal = rol (retVal) + (unsigned char)*str;
 
     return retVal;
 }
@@ -83,11 +83,12 @@ void fillCrc32 () {
 
     filled = true;
 
-    for (unsigned char i = 0; i < 256; i++) {
+    for (int i = 0; i < 256; i++) {
 
         crc32Tab[i] = i;
         for (int j = 0; j < 8; j++)
             crc32Tab[i] = (crc32Tab[i] & 1) ? (crc32Tab[i] >> 1) ^ crc32Poly : (crc32Tab[i] >> 1);
+
     }
 }
 
@@ -100,7 +101,7 @@ hash_t crc32Hash (char* str) {
     hash_t retVal = -1;
 
     while (*str != '\0')
-        retVal = crc32Tab[retVal ^ *(str++)] ^ (retVal >> 8);
+        retVal = crc32Tab[(unsigned char) retVal ^ (*(str++))] ^ (retVal >> 8);
 
     return ~retVal;
 }

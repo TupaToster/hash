@@ -1,6 +1,17 @@
 #pragma once
 #include "flog.h"
 
+int inline _strcmp (char* a, char* b) {
+
+    assert (a != NULL);
+    assert (b != NULL);
+
+}
+
+#ifdef op2
+#define strcmp _strcmp
+#endif
+
 typedef unsigned int hash_t;
 
 inline hash_t defaultHash (char* str) {
@@ -52,9 +63,6 @@ private:
     size_t cap = 0;
     hash_t (*strHash) (char* str) = NULL;
     Nod* data = NULL;
-
-    // all inline functions here
-
 
 public:
     HashTable (hash_t (*_strHash) (char* str) = defaultHash, size_t _cap = defaultCap) : strHash (_strHash), cap (_cap) {
@@ -111,7 +119,6 @@ public:
     void loadFromFile (char* fileName) {
 
         assert (fileName != NULL);
-
         FILE* inFile = fopen (fileName, "rb");
         assert (inFile != NULL);
 
@@ -162,10 +169,10 @@ public:
 
         assert (key != NULL);
 
-        hash_t hash = strHash (key);
+        volatile hash_t hash = strHash (key);
 
         for (Nod* iter = data[hash % cap].next; iter != data + hash % cap; iter=iter->next)
-            if (iter->hash == hash and strcmp (key, iter->key) == 0)
+            if (strcmp (key, iter->key) == 0)
                 return iter;
 
         return data + hash % cap;
